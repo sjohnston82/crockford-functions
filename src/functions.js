@@ -91,4 +91,111 @@ function fromTo(x, y) {
   };
 }
 
+function element(arr, fn) {
+  // return function () {
+  //   if (fn !== undefined) {
+  //     let x = fn();
+  //     return arr[x];
+  //   } else {
+  //     fn = fromTo(0, arr.length);
+  //   }
+  // };
 
+  fn = fn || from(0);
+
+  return function () {
+    return arr[fn()];
+  };
+}
+
+function collect(fn, arr) {
+  return function () {
+    const x = fn();
+    if (x !== undefined) {
+      arr.push(x);
+    }
+    return x;
+  };
+}
+
+function filter(fn, predicate) {
+  return function () {
+    x = fn();
+    if (x !== undefined && predicate(fn())) {
+      push(x);
+    }
+    return x;
+  };
+}
+
+function concat(gen1, gen2) {
+  return function () {
+    const x = gen1();
+    if (x === undefined) {
+      return gen2();
+    }
+    return x;
+  };
+}
+
+function repeat(gen) {
+  let x = gen();
+  while (x !== undefined) {
+    x = gen();
+  }
+}
+
+function gensymf(str) {
+  const x = from(1);
+  return function () {
+    return str + x();
+  };
+}
+
+// if not iterating properly, ensure scope is correct
+
+function counter(n) {
+  return {
+    up: function () {
+      return ++n;
+    },
+    down: function () {
+      return --n;
+    },
+  };
+}
+
+function revocable(fn) {
+  let revoked = false;
+
+  return {
+    invoke: function (x, y) {
+      if (!revoked) {
+        return fn(x, y);
+      } else {
+        return undefined;
+      }
+    },
+    revoke: function () {
+      revoked = true;
+    },
+  };
+}
+
+function m(val, source) {
+  return {
+    value: val,
+    source: typeof source === "string" ? source : String(val),
+  };
+}
+
+function addm(m1, m2) {
+  return {
+    value: m1.value + m2.value,
+    source: String(`(${m1.source}+${m2.source})`),
+  };
+}
+
+function liftm() {
+  
+}
